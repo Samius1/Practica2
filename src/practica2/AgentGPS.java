@@ -1,3 +1,5 @@
+package practica2;
+
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonObject;
@@ -5,9 +7,6 @@ import com.eclipsesource.json.JsonValue;
 import es.upv.dsic.gti_ia.core.ACLMessage;
 import es.upv.dsic.gti_ia.core.AgentID;
 import es.upv.dsic.gti_ia.core.SingleAgent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 public class AgentGPS extends SingleAgent{
     
@@ -18,6 +17,16 @@ public class AgentGPS extends SingleAgent{
     
     public AgentGPS(AgentID aid) throws Exception {
         super(aid);
+        outbox = new ACLMessage();
+        sendData= new String();
+        exit = false;
+        dataReceived = false;
+    }
+    
+    @Override 
+    public void init(){    
+        outbox.setSender(this.getAid());
+        outbox.setReceiver(new AgentID("bot"));    
     }
     
     public void processData(JsonObject data){
@@ -25,21 +34,13 @@ public class AgentGPS extends SingleAgent{
         sendData = coordenadas.toString();
     }
     
-   @Override 
-    public void init(){
-        exit = false;
-        outbox.setSender(this.getAid());
-        outbox.setReceiver(new AgentID("bot"));
-        dataReceived = false;
-    }
-    
     @Override 
     public void execute(){
-        
         try{
             while(!exit){
                 inbox = this.receiveACLMessage();
                 System.out.println(inbox.getContent());
+                
                 if(inbox.getSender().getLocalName().equals("bot")){
                     if(inbox.getContent().equals("ERROR")){
                         exit = true;    
@@ -58,8 +59,7 @@ public class AgentGPS extends SingleAgent{
                     dataReceived = true;
                 }
             }
-        } catch (InterruptedException ex) {
-        }
+        } catch (InterruptedException ex) {}
     }
     
     @Override 
